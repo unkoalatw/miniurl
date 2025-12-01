@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reurl.cc 縮短器 - Cyberpunk Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* --- Cyberpunk Theme Styles --- */
+
+        :root {
+            --cp-bg-dark: #101827;
+            --cp-bg-card: #1f2937;
+            --cp-neon-blue: #00FFFF;
+            --cp-neon-magenta: #FF00FF;
+            --cp-neon-green: #00FF7F;
+            --cp-text-light: #E5E7EB;
+            --cp-text-subtle: #9CA3AF;
+        }
+
+        @keyframes neonGlow {
+            0% { box-shadow: 0 0 5px var(--cp-neon-blue), 0 0 10px var(--cp-neon-blue); }
+            100% { box-shadow: 0 0 10px var(--cp-neon-blue), 0 0 15px var(--cp-neon-blue); }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif, monospace;
+            background-color: var(--cp-bg-dark);
+            color: var(--cp-text-light);
+            transition: background-color 0.5s;
+            background: linear-gradient(-45deg, #101827, #0c121d, #101827, #1f2937);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        /* Title */
+        #main-title {
+            color: var(--cp-neon-blue);
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.8), 0 0 10px rgba(0, 255, 255, 0.5);
+            animation: neonGlow 1.5s ease-in-out infinite alternate;
+        }
+
+        /* Container */
+        .container-card {
+            background-color: var(--cp-bg-card);
+            border: 2px solid var(--cp-neon-blue);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), 0 0 25px rgba(0, 255, 255, 0.1);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Input Card */
+        .input-card {
+            background-color: var(--cp-bg-dark);
+            border: 1px solid var(--cp-text-subtle);
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        .input-card:hover {
+            box-shadow: 0 0 5px var(--cp-neon-magenta);
+        }
+
+        /* Inputs */
+        input[type="text"], input[type="url"] {
+            background-color: #0c121d;
+            border: 1px solid var(--cp-neon-blue);
+            color: var(--cp-text-light);
+            caret-color: var(--cp-neon-green);
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--cp-neon-magenta);
+            box-shadow: 0 0 5px rgba(255, 0, 255, 0.5);
+            background-color: #1a2230;
+        }
+
+        /* Colors */
+        .color-primary { color: var(--cp-neon-blue); }
+        .color-success { color: var(--cp-neon-green); }
+        .color-danger { color: var(--cp-neon-magenta); }
+
+        /* Buttons */
+        button {
+            font-family: monospace, 'Inter', sans-serif;
+            text-transform: uppercase;
+            font-weight: 700;
+            border-radius: 2px;
+            border: 1px solid transparent;
+            text-shadow: 0 0 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .button-primary {
+            background-color: #1a344d;
+            color: var(--cp-neon-blue);
+            border-color: var(--cp-neon-blue);
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+        .button-primary:hover {
+            background-color: #2a4c6e;
+            color: var(--cp-text-light);
+            box-shadow: 0 0 10px var(--cp-neon-blue), 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .button-secondary {
+            background-color: #3e2a4d;
+            color: var(--cp-neon-magenta);
+            border-color: var(--cp-neon-magenta);
+            box-shadow: 0 0 5px rgba(255, 0, 255, 0.5);
+        }
+        .button-secondary:hover {
+            background-color: #553366;
+            color: var(--cp-text-light);
+            box-shadow: 0 0 10px var(--cp-neon-magenta), 0 0 20px rgba(255, 0, 255, 0.4);
+        }
+        
+        .button-copy {
+            background-color: #153d2d;
+            color: var(--cp-neon-green);
+            border-color: var(--cp-neon-green);
+            box-shadow: 0 0 5px rgba(0, 255, 127, 0.5);
+        }
+        .button-copy:hover {
+            background-color: #1e523d;
+            color: white;
+            box-shadow: 0 0 10px var(--cp-neon-green);
+        }
+
+        .button-lang {
+            background-color: transparent;
+            color: var(--cp-text-subtle);
+            border: 1px solid var(--cp-text-subtle);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        .button-lang:hover {
+            color: var(--cp-neon-blue);
+            border-color: var(--cp-neon-blue);
+            box-shadow: 0 0 5px var(--cp-neon-blue);
+        }
+
+        /* Spinner */
+        .spinner {
+            border: 4px solid #1a2230;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--cp-neon-blue);
+            border-top-color: var(--cp-neon-blue);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* History */
+        .history-item {
+            border-left: 2px solid var(--cp-text-subtle);
+        }
+        .history-item:hover {
+            border-left-color: var(--cp-neon-green);
+            background-color: #1a2230;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="container-card p-6 md:p-10 flex flex-col space-y-8 relative">
+        
+        <!-- Lang Switcher -->
+        <div class="absolute top-4 right-4 z-10">
+            <button onclick="toggleLanguage()" id="lang-btn" class="button-lang rounded font-mono">
+                [ EN / 繁中 ]
+            </button>
+        </div>
+
+        <!-- Header -->
+        <div class="text-center mt-4 md:mt-0">
+            <h1 id="main-title" class="text-4xl md:text-5xl font-bold mb-2 tracking-wider" data-i18n="mainTitle">
+                LINK SHORTENER
+            </h1>
+            <p class="text-sm font-mono text-gray-500 tracking-widest" data-i18n="subTitle">
+                POWERED BY REURL.CC // SECURE PROTOCOL
+            </p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-card p-6 space-y-4">
+            <label class="block text-sm font-medium color-primary font-mono mb-1" data-i18n="inputLabel">
+                > INPUT TARGET URL
+            </label>
+            <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3">
+                <input type="url" id="url-input" 
+                    class="flex-1 p-3 rounded text-lg font-mono placeholder-gray-600 focus:outline-none"
+                    placeholder="https://example.com/very/long/url..."
+                    data-i18n-placeholder="placeholder"
+                    onkeydown="handleEnter(event)">
+                <button onclick="shortenUrl()" id="shorten-btn"
+                    class="button-primary py-3 px-8 text-lg rounded shadow-lg transition-transform active:scale-95"
+                    data-i18n="executeBtn">
+                    EXECUTE
+                </button>
+            </div>
+            <p id="error-msg" class="text-sm color-danger font-mono hidden"></p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-area" class="hidden flex flex-col items-center justify-center py-8">
+            <div class="spinner mb-4"></div>
+            <p class="color-primary font-mono text-sm animate-pulse" data-i18n="loadingText">PROCESSING DATA STREAM...</p>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result-area" class="hidden animate-fade-in">
+            <div class="p-6 rounded border-2 border-green-400 bg-opacity-10 bg-green-900 grid grid-cols-1 md:grid-cols-3 gap-6 items-center shadow-[0_0_15px_rgba(0,255,127,0.2)]">
+                
+                <!-- QR Code Column -->
+                <div class="flex justify-center md:justify-start">
+                    <div class="p-2 bg-white rounded shadow-lg">
+                        <img id="qr-code" src="" alt="QR Code" class="w-32 h-32 object-contain">
+                    </div>
+                </div>
+
+                <!-- Text Info Column -->
+                <div class="md:col-span-2 space-y-4 text-center md:text-left">
+                    <div>
+                        <p class="text-xs text-green-400 font-mono mb-1" data-i18n="successLabel">SUCCESS // SHORTENED URL GENERATED</p>
+                        <a id="short-url-link" href="#" target="_blank" 
+                           class="text-3xl font-bold text-white hover:text-green-300 transition break-all font-mono">
+                           Loading...
+                        </a>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+                        <button onclick="copyToClipboard()" 
+                            class="button-copy py-2 px-6 rounded font-mono text-sm flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                            <span data-i18n="copyBtn">COPY LINK</span>
+                        </button>
+                        <button onclick="resetApp()" 
+                            class="button-secondary py-2 px-6 rounded font-mono text-sm"
+                            data-i18n="newBtn">
+                            NEW TASK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div class="mt-8 border-t border-gray-700 pt-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold color-primary tracking-wide" data-i18n="historyTitle">
+                    > SYSTEM LOGS (HISTORY)
+                </h3>
+                <button onclick="clearHistory()" class="text-xs text-red-400 hover:text-red-300 underline font-mono" data-i18n="clearBtn">
+                    CLEAR LOGS
+                </button>
+            </div>
+            
+            <div id="history-list" class="space-y-2 max-h-48 overflow-y-auto no-scrollbar font-mono text-sm">
+                <!-- History items will be injected here -->
+                <p id="no-data-msg" class="text-gray-600 italic text-center py-4" data-i18n="noData">NO DATA RECORDS FOUND.</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="absolute bottom-2 right-4 text-[10px] text-gray-600 font-mono" data-i18n="footer">
+            SYS.VER.2.0.77
+        </div>
+    </div>
+
+    <script>
+        const REURL_API_KEY = "4070ff49d794e73c125f3b663c974755ecd7b539959304df8a38b58d65165567c4f5d6";
+        const PROXY_URL = "https://corsproxy.io/?"; 
+
+        const urlInput = document.getElementById('url-input');
+        const shortenBtn = document.getElementById('shorten-btn');
+        const loadingArea = document.getElementById('loading-area');
+        const resultArea = document.getElementById('result-area');
+        const errorMsg = document.getElementById('error-msg');
+        const shortUrlLink = document.getElementById('short-url-link');
+        const qrCodeImg = document.getElementById('qr-code');
+        const historyList = document.getElementById('history-list');
+
+        // --- I18N Logic ---
+        const translations = {
+            'en': {
+                mainTitle: "LINK SHORTENER",
+                subTitle: "POWERED BY REURL.CC // SECURE PROTOCOL",
+                inputLabel: "> INPUT TARGET URL",
+                placeholder: "https://example.com/very/long/url...",
+                executeBtn: "EXECUTE",
+                loadingText: "PROCESSING DATA STREAM...",
+                successLabel: "SUCCESS // SHORTENED URL GENERATED",
+                copyBtn: "COPY LINK",
+                newBtn: "NEW TASK",
+                historyTitle: "> SYSTEM LOGS (HISTORY)",
+                clearBtn: "CLEAR LOGS",
+                noData: "NO DATA RECORDS FOUND.",
+                footer: "SYS.VER.2.0.77",
+                copied: "COPIED!",
+                confirmClear: "CONFIRM: WIPE ALL SYSTEM LOGS?",
+                errEmpty: "ERROR: INPUT CANNOT BE EMPTY",
+                errInvalid: "ERROR: INVALID URL FORMAT DETECTED",
+                errApi: "API did not return a short URL",
+                errConnection: "SYSTEM FAILURE: CONNECTION REFUSED",
+                errAuth: "AUTH FAILURE: INVALID API KEY",
+                errCors: "SECURITY PROTOCOL (CORS) INTERCEPTED REQUEST. <br>Browser blocked direct access. Please install CORS plugin or use backend.",
+                copyText: "Copy"
+            },
+            'zh-TW': {
+                mainTitle: "網址縮短器",
+                subTitle: "核心驅動 REURL.CC // 安全協定",
+                inputLabel: "> 輸入目標網址",
+                placeholder: "https://example.com/超長網址/...",
+                executeBtn: "執行縮址",
+                loadingText: "資料流處理中...",
+                successLabel: "成功 // 短網址已生成",
+                copyBtn: "複製連結",
+                newBtn: "新任務",
+                historyTitle: "> 系統紀錄 (歷史)",
+                clearBtn: "清除紀錄",
+                noData: "無數據紀錄。",
+                footer: "系統版本 2.0.77",
+                copied: "已複製!",
+                confirmClear: "確認：清除所有系統紀錄？",
+                errEmpty: "錯誤：輸入不能為空",
+                errInvalid: "錯誤：偵測到無效的網址格式",
+                errApi: "API 未回傳短網址",
+                errConnection: "系統失敗：連線被拒絕",
+                errAuth: "認證失敗：API KEY 無效",
+                errCors: "安全協定 (CORS) 攔截請求。<br>瀏覽器限制直接存取，請安裝 CORS 解鎖外掛或使用後端環境。",
+                copyText: "複製"
+            }
+        };
+
+        // Get language from storage or default to zh-TW (User asked in Chinese)
+        let currentLang = localStorage.getItem('reurl_cyber_lang') || 'zh-TW';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'zh-TW' : 'en';
+            localStorage.setItem('reurl_cyber_lang', currentLang);
+            applyLanguage();
+            renderHistory(); // Re-render history to translate dynamic button text
+        }
+
+        function applyLanguage() {
+            const t = translations[currentLang];
+            
+            // Text Content
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.innerHTML = t[key]; // innerHTML to support <br>
+            });
+
+            // Placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (t[key]) el.placeholder = t[key];
+            });
+
+            // Button label
+            const langBtn = document.getElementById('lang-btn');
+            langBtn.textContent = currentLang === 'en' ? '[ LANG: EN ]' : '[ 語言: 繁中 ]';
+        }
+
+        function getTranslation(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        // --- App Logic ---
+
+        window.onload = function() {
+            applyLanguage();
+            renderHistory();
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') shortenUrl();
+        }
+
+        async function shortenUrl() {
+            const longUrl = urlInput.value.trim();
+            
+            if (!longUrl) {
+                showError(getTranslation('errEmpty'));
+                return;
+            }
+            if (!isValidUrl(longUrl)) {
+                showError(getTranslation('errInvalid'));
+                return;
+            }
+
+            errorMsg.classList.add('hidden');
+            resultArea.classList.add('hidden');
+            loadingArea.classList.remove('hidden');
+            shortenBtn.disabled = true;
+            urlInput.disabled = true;
+
+            try {
+                const data = await fetchReurl(longUrl);
+                
+                if (data.short_url) {
+                    showResult(data.short_url, longUrl);
+                } else {
+                    throw new Error(getTranslation('errApi'));
+                }
+
+            } catch (error) {
+                console.error(error);
+                let msg = getTranslation('errConnection');
+                if (error.message.includes("401")) msg = getTranslation('errAuth');
+                if (error.message.includes("CORS_BLOCK") || error.message.includes("Failed to fetch")) {
+                     msg = getTranslation('errCors');
+                }
+                
+                // If the error message is a plain string from our logic, use it, otherwise use fallback
+                if (error.message !== "CORS_BLOCK" && !error.message.includes("Failed")) {
+                     // Keep original message if meaningful
+                }
+                
+                showError(msg);
+            } finally {
+                loadingArea.classList.add('hidden');
+                shortenBtn.disabled = false;
+                urlInput.disabled = false;
+            }
+        }
+        
+        async function fetchReurl(longUrl) {
+            const targetUrl = "https://api.reurl.cc/shorten";
+            
+            // Helper for direct request
+            const doRequest = async (url) => {
+                return await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "reurl-api-key": REURL_API_KEY
+                    },
+                    body: JSON.stringify({ url: longUrl })
+                });
+            };
+
+            try {
+                // 1. Direct attempt
+                let response = await doRequest(targetUrl);
+                if (response.ok) return await response.json();
+                
+                if (response.status !== 0 && response.status !== 200) {
+                     const errData = await response.json().catch(() => ({}));
+                     throw new Error(errData.msg || `HTTP ${response.status}`);
+                }
+            } catch (e) {
+                // 2. Proxy attempt (for demo purposes)
+                try {
+                    const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(targetUrl);
+                    const response = await fetch(proxyUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "reurl-api-key": REURL_API_KEY
+                        },
+                        body: JSON.stringify({ url: longUrl })
+                    });
+                    
+                    if (!response.ok) throw new Error(`Proxy Error: ${response.status}`);
+                    return await response.json();
+                } catch (proxyErr) {
+                    throw new Error("CORS_BLOCK");
+                }
+            }
+        }
+
+        function showResult(shortUrl, originalUrl) {
+            shortUrlLink.href = shortUrl;
+            shortUrlLink.textContent = shortUrl;
+            
+            // Generate QR Code
+            qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shortUrl)}&bgcolor=255-255-255`;
+            
+            resultArea.classList.remove('hidden');
+            saveToHistory(shortUrl, originalUrl);
+        }
+
+        function showError(msg) {
+            errorMsg.innerHTML = msg; 
+            errorMsg.classList.remove('hidden');
+            const card = document.querySelector('.input-card');
+            card.animate([
+                { transform: 'translateX(0)' },
+                { transform: 'translateX(-5px)' },
+                { transform: 'translateX(5px)' },
+                { transform: 'translateX(0)' }
+            ], { duration: 300 });
+        }
+
+        function copyToClipboard() {
+            const text = shortUrlLink.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.button-copy span'); // Select span inside button
+                const originalText = btn.innerHTML;
+                
+                // Change text via translations logic temporary override or just hard replace
+                btn.innerHTML = getTranslation('copied');
+                
+                const btnEl = document.querySelector('.button-copy');
+                btnEl.classList.remove('button-copy');
+                btnEl.classList.add('bg-gray-600', 'text-white');
+                
+                setTimeout(() => {
+                    // Restore original text key logic
+                    btn.innerHTML = originalText;
+                    btnEl.classList.add('button-copy');
+                    btnEl.classList.remove('bg-gray-600', 'text-white');
+                }, 2000);
+            });
+        }
+
+        function resetApp() {
+            urlInput.value = '';
+            resultArea.classList.add('hidden');
+            urlInput.focus();
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // --- History Logic ---
+
+        function getHistory() {
+            const logs = localStorage.getItem('reurl_cyber_logs');
+            return logs ? JSON.parse(logs) : [];
+        }
+
+        function saveToHistory(short, original) {
+            const logs = getHistory();
+            const exists = logs.some(log => log.short === short);
+            if (!exists) {
+                logs.unshift({ short, original, time: new Date().toLocaleString() });
+                if (logs.length > 10) logs.pop(); 
+                localStorage.setItem('reurl_cyber_logs', JSON.stringify(logs));
+                renderHistory();
+            }
+        }
+
+        function renderHistory() {
+            const logs = getHistory();
+            historyList.innerHTML = '';
+            const t = translations[currentLang];
+
+            if (logs.length === 0) {
+                // Use data-i18n for empty state to keep it consistent
+                historyList.innerHTML = `<p id="no-data-msg" class="text-gray-600 italic text-center py-4" data-i18n="noData">${t.noData}</p>`;
+                return;
+            }
+
+            logs.forEach(log => {
+                const item = document.createElement('div');
+                item.className = 'history-item p-3 bg-gray-800 bg-opacity-50 rounded flex justify-between items-center group transition duration-200';
+                
+                // Dynamic HTML injection with translated Copy button
+                item.innerHTML = `
+                    <div class="truncate mr-4">
+                        <a href="${log.short}" target="_blank" class="color-primary font-bold hover:underline">${log.short}</a>
+                        <p class="text-xs text-gray-500 truncate">${log.original}</p>
+                    </div>
+                    <button onclick="copyHistory('${log.short}')" class="text-xs border border-gray-600 px-2 py-1 rounded text-gray-400 hover:text-white hover:border-white transition uppercase">
+                        ${t.copyText}
+                    </button>
+                `;
+                historyList.appendChild(item);
+            });
+        }
+
+        function copyHistory(text) {
+            navigator.clipboard.writeText(text);
+        }
+
+        function clearHistory() {
+            if(confirm(getTranslation('confirmClear'))) {
+                localStorage.removeItem('reurl_cyber_logs');
+                renderHistory();
+            }
+        }
+    </script>
+</body>
+</html>
